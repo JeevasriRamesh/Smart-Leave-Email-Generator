@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Smart Leave Email Generator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 40px;
+      background: #ffeedd;
+      color: #333;
+      animation: fadeIn 1s;
+    }
+    .container {
+      max-width: 700px; margin: auto;
+      background: #fff5f0;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      animation: slideUp 0.6s;
+    }
+    h2 { text-align: center; color: #4a4e69; }
+    input, select, button, textarea {
+      width: 100%; padding: 12px; margin: 10px 0;
+      border: none; border-radius: 12px;
+      font-size: 15px; box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+      background: #f7f6f2; transition: 0.3s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none; background: #fff;
+      box-shadow: 0 0 0 2px #d3c0cd;
+    }
+    button {
+      background: #a3c4f3; color: #fff; font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover { background: #92b4ec; transform: scale(1.03); }
+    textarea { height: 200px; resize: none; }
+    h3 { color: #6d6875; }
+    @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+    @keyframes slideUp { from {transform: translateY(40px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Smart Leave Email Generator</h2>
+    <form id="leaveForm">
+      <input name="your_name" placeholder="Your Name" required>
+      <input name="manager_name" placeholder="Manager's Name" required>
+      <input name="reason" placeholder="Reason for Leave" required>
+      <input name="days" placeholder="Number of Days" required>
+      <input name="start_date" placeholder="Start Date (YYYY-MM-DD)" required>
+      <select name="tone">
+        <option value="Formal">Formal</option>
+        <option value="Friendly">Friendly</option>
+        <option value="Funny">Funny</option>
+      </select>
+      <button type="submit">Generate Email</button>
+    </form>
+    <h3>Generated Email:</h3>
+    <textarea id="result" readonly></textarea>
+  </div>
+
+  <script>
+    const form = document.getElementById("leaveForm");
+    const output = document.getElementById("result");
+
+    const openers = {
+      Formal: [
+        "I am writing to formally request",
+        "Kindly consider this as my leave application for",
+        "I would like to inform you that I require"
+      ],
+      Friendly: [
+        "Hey, just letting you know I need",
+        "Hi! I wanted to apply for",
+        "Thought I'd tell you I need"
+      ],
+      Funny: [
+        "Houston, we have a problem. I need",
+        "Breaking News! I need",
+        "Insert dramatic music – I’m requesting"
+      ]
+    };
+
+    const closings = {
+      Formal: "Thank you for your understanding.\nSincerely,\n[Your Name]",
+      Friendly: "Thanks so much!\nBest,\n[Your Name]",
+      Funny: "Thanks a bunch, you rock!\nStay awesome,\n[Your Name]"
+    };
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const data = new FormData(form);
+      const your_name = data.get("your_name");
+      const manager_name = data.get("manager_name");
+      const reason = data.get("reason").toLowerCase();
+      const days = data.get("days");
+      const start_date = data.get("start_date");
+      const tone = data.get("tone");
+
+      let reason_phrase = "";
+      if (reason.includes("vacation") || reason.includes("trip")) {
+        reason_phrase = `some vacation time starting ${start_date}`;
+      } else if (reason.includes("emergency")) {
+        reason_phrase = `an urgent leave from ${start_date} due to an emergency`;
+      } else if (reason.includes("personal") || reason.includes("family")) {
+        reason_phrase = `${days} day(s) of personal leave starting from ${start_date}`;
+      } else {
+        reason_phrase = `${days} day(s) of leave starting from ${start_date} due to ${reason}`;
+      }
+
+      const opener = openers[tone][Math.floor(Math.random() * openers[tone].length)];
+      let body = `${opener} ${reason_phrase}.`;
+      if (tone === "Funny") body += " I'll be back like a superhero 🦸!";
+
+      const closing = closings[tone].replace("[Your Name]", your_name);
+
+      const finalEmail = `Subject: Leave Request\n\nDear ${manager_name},\n\n${body}\n\n${closing}`;
+      output.value = finalEmail;
+    });
+  </script>
+</body>
+</html>
